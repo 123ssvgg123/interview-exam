@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FastAPI 流式输出 Demo</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --line: #262b36;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #4f9dff;
+    --ok: #43c98b;
+    --warn: #f2b25c;
+    --err: #ef6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 20px 60px;
+    background: var(--bg); color: var(--text);
+    font: 14px/1.6 "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin-bottom: 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+  .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  input[type="text"] {
+    flex: 1 1 180px; min-width: 0; padding: 8px 10px;
+    background: #0d1016; color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="range"] { flex: 0 0 110px; accent-color: var(--accent); }
+  button {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+    background: #212633; color: var(--text); cursor: pointer; font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #06121f; font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .out {
+    min-height: 132px; max-height: 260px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+    background: #0d1016; border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+    font: 13px/1.7 "Cascadia Mono", Consolas, monospace;
+  }
+  .out:empty::before { content: "等待输出…"; color: #4a5262; }
+  .meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .meta b { color: var(--text); font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .dot.on { background: var(--ok); }
+  .dot.err { background: var(--err); }
+  .log { color: var(--muted); font-size: 12px; margin-top: 6px; min-height: 18px; }
+  .log.error { color: var(--err); }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+  <h1>FastAPI 流式输出 Demo</h1>
+  <div class="sub">
+    三个面板分别演示 SSE、NDJSON（行式 JSON）和模拟 LLM 逐 token 生成，均为
+    <code>fetch</code> + <code>ReadableStream</code> 增量读取。
+  </div>
+
+  <div class="grid">
+    <!-- SSE -->
+    <section class="card">
+      <h2>① SSE <span class="tag">GET /stream/sse</span></h2>
+      <div class="row">
+        <input type="text" id="sse-input" value="流式输出 Streaming 让首 token 更快到达！" />
+        <button class="primary" id="sse-go">开始</button>
+        <button id="sse-stop" disabled>中断</button>
+      </div>
+      <div class="row">
+        <label class="hint">token 延迟 <input type="range" id="sse-delay" min="0" max="200" value="40" /></label>
+        <span class="hint" id="sse-delay-val">40ms</span>
+      </div>
+      <div class="out" id="sse-out"></div>
+      <div class="meta">
+        <span><span class="dot" id="sse-dot"></span> <span id="sse-state">空闲</span></span>
+        <span>TTFT <b id="sse-ttft">-</b></span>
+        <span>总耗时 <b id="sse-total">-</b></span>
+        <span>字符 <b id="sse-chars">0</b></span>
+      </div>
+      <div class="log" id="sse-log"></div>
+    </section>
+
+    <!-- NDJSON -->
+    <section class="card">
+      <h2>② NDJSON <span class="tag">GET /stream/ndjson</span></h2>
+      <div class="row">
+        <input type="text" id="nd-input" value="NDJSON 每行一个 JSON，适合日志与批量消费。" />
+        <button class="primary" id="nd-go">开始</button>
+        <button id="nd-stop" disabled>中断</button>
+      </div>
+      <div class="out" id="nd-out"></div>
+      <div class="meta">
+        <span><span class="dot" id="nd-dot"></span> <span id="nd-state">空闲</span></span>
+        <span>行数 <b id="nd-lines">0</b></span>
+        <span>总耗时 <b id="nd-total">-</b></span>
+      </div>
+      <div class="log" id="nd-log"></div>
+    </section>
+
+    <!-- Chat -->
+    <section class="card">
+      <h2>③ 模拟 LLM <span class="tag">POST /chat/stream</span></h2>
+      <div class="row">
+        <input type="text" id="chat-input" value="用三句话解释什么是流式输出。" />
+        <button class="primary" id="chat-go">发送</button>
+        <button id="chat-stop" disabled>中断</button>
+      </div>
+      <div class="row">
+        <label class="hint">格式
+          <select id="chat-mode">
+            <option value="sse">SSE</option>
+            <option value="text">text/plain</option>
+          </select>
+        </label>
+      </div>
+      <div class="out" id="chat-out"></div>
+      <div class="meta">
+        <span><span class="dot" id="chat-dot"></span> <span id="chat-state">空闲</span></span>
+        <span>TTFT <b id="chat-ttft">-</b></span>
+        <span>总耗时 <b id="chat-total">-</b></span>
+      </div>
+      <div class="log" id="chat-log"></div>
+    </section>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const now = () => performance.now();
+
+// ---------- 通用 SSE 解析：按空行切帧，忽略注释行（心跳） ----------
+function createSSEParser(onEvent) {
+  let buf = "";
+  return (chunk, flush = false) => {
+    buf += chunk;
+    let idx;
+    while ((idx = buf.indexOf("\n\n")) >= 0) {
+      const frame = buf.slice(0, idx);
+      buf = buf.slice(idx + 2);
+      let event = "message", data = [], id = null;
+      for (const line of frame.split("\n")) {
+        if (!line || line.startsWith(":")) continue;      // 心跳注释
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) data.push(line.slice(5).replace(/^ /, ""));
+        else if (line.startsWith("id:")) id = line.slice(3).trim();
+      }
+      if (data.length) onEvent({ event, id, data: data.join("\n") });
+    }
+    if (flush && buf.trim()) {
+      // 兜底：流结束时没有空行分隔的残帧
+      if (buf.startsWith("data:")) onEvent({ event: "message", id: null, data: buf.replace(/^data:\s?/, "") });
+      buf = "";
+    }
+  };
+}
+
+// ---------- ① SSE ----------
+{
+  const out = $("sse-out"), log = $("sse-log"), dot = $("sse-dot");
+  let controller = null, t0 = 0, ttft = null, chars = 0;
+
+  const setState = (state, cls) => {
+    $("sse-state").textContent = state;
+    dot.className = "dot" + (cls ? " " + cls : "");
+  };
+
+  $("sse-delay").addEventListener("input", (e) => {
+    $("sse-delay-val").textContent = e.target.value + "ms";
+  });
+
+  async function run() {
+    controller = new AbortController();
+    out.textContent = ""; log.textContent = ""; log.className = "log";
+    chars = 0; ttft = null; t0 = now();
+    $("sse-ttft").textContent = "-"; $("sse-total").textContent = "-"; $("sse-chars").textContent = "0";
+    $("sse-go").disabled = true; $("sse-stop").disabled = false;
+    setState("连接中…", "on");
+
+    const text = $("sse-input").value;
+    const delay = Number($("sse-delay").value) / 1000;
+    const url = `/stream/sse?text=${encodeURIComponent(text)}&delay=${delay}`;
+
+    const parse = createSSEParser(({ event, id, data }) => {
+      if (event === "token") {
+        if (ttft === null) { ttft = now() - t0; $("sse-ttft").textContent = Math.round(ttft) + "ms"; }
+        let delta = data;
+        try { delta = JSON.parse(data).delta ?? ""; } catch (_) {}
+        out.textContent += delta;
+        out.scrollTop = out.scrollHeight;
+        chars += [...delta].length;
+        $("sse-chars").textContent = chars;
+      } else if (event === "error") {
+        log.textContent = "服务端 error 事件：" + data;
+        log.className = "log error";
+        setState("出错", "err");
+      } else if (event === "done" || data === "[DONE]") {
+        log.textContent = "收到 [DONE]";
+      }
+    });
+
+    try {
+      const resp = await fetch(url, { signal: controller.signal, headers: { Accept: "text/event-stream" } });
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        parse(decoder.decode(value, { stream: true }));
+      }
+      parse(decoder.decode(), true);
+      if (log.className === "log") { setState("完成", "on"); log.textContent = "流正常结束"; }
+    } catch (err) {
+      if (err.name === "AbortError") {
+        setState("已中断", ""); log.textContent = "客户端主动 abort，服务端应停止生成";
+      } else {
+        setState("失败", "err"); log.textContent = String(err);
+      }
+    } finally {
+      $("sse-total").textContent = Math.round(now() - t0) + "ms";
+      $("sse-go").disabled = false; $("sse-stop").disabled = true;
+      controller = null;
+    }
+  }
+
+  $("sse-go").addEventListener("click", run);
+  $("sse-stop").addEventListener("click", () => controller && controller.abort());
+}
+
+// ---------- ② NDJSON ----------
+{
+  const out = $("nd-out"), log = $("nd-log"), dot = $("nd-dot");
+  let controller = null, t0 = 0, lines = 0;
+
+  const setState = (state, cls) => {
+    $("nd-state").textContent = state;
+    dot.className = "dot" + (cls ? " " + cls : "");
+  };
+
+  async function run() {
+    controller = new AbortController();
+    out.textContent = ""; log.textContent = ""; log.className = "log";
+    lines = 0; t0 = now();
+    $("nd-lines").textContent = "0"; $("nd-total").textContent = "-";
+    $("nd-go").disabled = true; $("nd-stop").disabled = false;
+    setState("连接中…", "on");
+
+    const text = $("nd-input").value;
+    const url = `/stream/ndjson?text=${encodeURIComponent(text)}&delay=0.03`;
+    let buf = "";
+
+    const handleLine = (line) => {
+      if (!line.trim()) return;
+      let obj;
+      try { obj = JSON.parse(line); } catch (_) { log.textContent = "非法 JSON 行: " + line; log.className = "log error"; return; }
+      lines++;
+      $("nd-lines").textContent = lines;
+      if (obj.type === "token") {
+        out.textContent += obj.delta ?? "";
+        out.scrollTop = out.scrollHeight;
+      } else if (obj.type === "ping") {
+        log.textContent = "心跳 ping @ " + obj.ts;
+      } else if (obj.type === "error") {
+        log.textContent = "服务端 error: " + obj.message;
+        log.className = "log error";
+        setState("出错", "err");
+      } else if (obj.type === "done") {
+        log.textContent = "收到 done 行，共 " + lines + " 行";
+      }
+    };
+
+    try {
+      const resp = await fetch(url, { signal: controller.signal, headers: { Accept: "application/x-ndjson" } });
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          handleLine(buf.slice(0, i));
+          buf = buf.slice(i + 1);
+        }
+      }
+      buf += decoder.decode();
+      if (buf.trim()) handleLine(buf);
+      if (log.className === "log") setState("完成", "on");
+    } catch (err) {
+      if (err.name === "AbortError") {
+        setState("已中断", ""); log.textContent = "客户端已 abort";
+      } else {
+        setState("失败", "err"); log.textContent = String(err);
+      }
+    } finally {
+      $("nd-total").textContent = Math.round(now() - t0) + "ms";
+      $("nd-go").disabled = false; $("nd-stop").disabled = true;
+      controller = null;
+    }
+  }
+
+  $("nd-go").addEventListener("click", run);
+  $("nd-stop").addEventListener("click", () => controller && controller.abort());
+}
+
+// ---------- ③ 模拟 LLM ----------
+{
+  const out = $("chat-out"), log = $("chat-log"), dot = $("chat-dot");
+  let controller = null, t0 = 0, ttft = null;
+
+  const setState = (state, cls) => {
+    $("chat-state").textContent = state;
+    dot.className = "dot" + (cls ? " " + cls : "");
+  };
+
+  const parse = createSSEParser(({ event, data }) => {
+    if (event === "token") {
+      if (ttft === null) { ttft = now() - t0; $("chat-ttft").textContent = Math.round(ttft) + "ms"; }
+      let delta = data;
+      try { delta = JSON.parse(data).delta ?? ""; } catch (_) {}
+      out.textContent += delta;
+      out.scrollTop = out.scrollHeight;
+    } else if (event === "error") {
+      log.textContent = "服务端 error 事件：" + data;
+      log.className = "log error";
+    } else if (data === "[DONE]") {
+      log.textContent = "收到 [DONE]";
+    }
+  });
+
+  async function run() {
+    controller = new AbortController();
+    out.textContent = ""; log.textContent = ""; log.className = "log";
+    ttft = null; t0 = now();
+    $("chat-ttft").textContent = "-"; $("chat-total").textContent = "-";
+    $("chat-go").disabled = true; $("chat-stop").disabled = false;
+    setState("生成中…", "on");
+    const mode = $("chat-mode").value;
+
+    try {
+      const resp = await fetch("/chat/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: mode === "sse" ? "text/event-stream" : "text/plain" },
+        body: JSON.stringify({ prompt: $("chat-input").value, mode, delay: 0.03 }),
+        signal: controller.signal,
+      });
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+      if (mode === "text") {
+        // 纯文本流：直接渲染 chunk，无帧协议
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          if (chunk) {
+            if (ttft === null) { ttft = now() - t0; $("chat-ttft").textContent = Math.round(ttft) + "ms"; }
+            out.textContent += chunk;
+            out.scrollTop = out.scrollHeight;
+          }
+        }
+        out.textContent += decoder.decode();
+        setState("完成", "on");
+        log.textContent = "text/plain 流结束";
+      } else {
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          parse(decoder.decode(value, { stream: true }));
+        }
+        parse(decoder.decode(), true);
+        if (log.className === "log") { setState("完成", "on"); log.textContent = "流正常结束"; }
+      }
+    } catch (err) {
+      if (err.name === "AbortError") {
+        setState("已中断", ""); log.textContent = "客户端 abort，服务端应停止生成";
+      } else {
+        setState("失败", "err"); log.textContent = String(err);
+      }
+    } finally {
+      $("chat-total").textContent = Math.round(now() - t0) + "ms";
+      $("chat-go").disabled = false; $("chat-stop").disabled = true;
+      controller = null;
+    }
+  }
+
+  $("chat-go").addEventListener("click", run);
+  $("chat-stop").addEventListener("click", () => controller && controller.abort());
+}
+</script>
+</body>
+</html>
