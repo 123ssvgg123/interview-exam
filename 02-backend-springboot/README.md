@@ -498,4 +498,4 @@ passwordEncoder.encode(DEMO_RAW_PASSWORD)  // BCrypt，随机盐
 
 ## 十二、提交说明
 
-本目录可直接作为 Git 仓库根目录提交（`.gitignore` 已排除 `target/`、IDE 文件与日志）。按分工，`git commit` / 推送与 GitHub 链接由主代理统一完成，本工程不包含远端地址。
+本目录是多题目仓库 `interview-exam/` 的一个子目录，可直接作为独立项目使用（`.gitignore` 已排除 `target/`、IDE 文件与日志）。仓库根目录的 `README.md` 里有六道题的索引与逐题运行方式。
