@@ -1,0 +1,4 @@
+﻿variant,n,accuracy,macro_f1,parse_failure_rate,avg_confidence,latency_p50_s,latency_p95_s,wall_time_s
+zero_shot,300,0.8833,0.8828,0.0,0.8192,0.583,0.688,178.0
+few_shot,300,0.8733,0.8767,0.01,0.8327,0.596,0.698,194.9
+cot,300,0.8667,0.8657,0.0,0.8315,0.972,1.299,298.7

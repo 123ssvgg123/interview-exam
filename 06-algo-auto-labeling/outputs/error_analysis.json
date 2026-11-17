@@ -1,0 +1,14 @@
+{
+  "n": 300,
+  "strict_correct": 265,
+  "strict_accuracy": 0.8833,
+  "disagreements": 35,
+  "error_taxonomy": {
+    "label_noise": 16,
+    "ambiguous": 14,
+    "model_error": 5
+  },
+  "accuracy_excluding_label_noise": 0.9331,
+  "accuracy_if_ambiguous_counted_as_ok": 0.93,
+  "manual_error_rate_on_disagreements": 0.1429
+}
