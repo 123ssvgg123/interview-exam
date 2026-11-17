@@ -72,7 +72,7 @@ interview-exam/
 
 ## 上传到 GitHub
 
-仓库已经按题分好提交记录（`git log --oneline` 可看到 6 个 commit），推送即可：
+仓库已经按题分好提交记录（`git log --oneline` 可看到每题一个 commit），推送即可：
 
 ```bash
 cd interview-exam
