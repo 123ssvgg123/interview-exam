@@ -1,0 +1,9 @@
+{
+  "engine": "browser",
+  "started_at": "2026-11-17 11:16:08",
+  "elapsed_sec": 197.0,
+  "articles": 60,
+  "failures": 0,
+  "median_content_len": 6492.0,
+  "csv": "D:\\dsh-workplace\\interview-exam\\03-crawler-mitadmissions\\csv\\playwright_blogs.csv"
+}

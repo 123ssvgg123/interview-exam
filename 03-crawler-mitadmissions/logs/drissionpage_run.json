@@ -1,0 +1,9 @@
+{
+  "engine": "browser",
+  "started_at": "2026-11-17 11:45:38",
+  "elapsed_sec": 1769.4,
+  "articles": 60,
+  "failures": 0,
+  "median_content_len": 6498.0,
+  "csv": "D:\\dsh-workplace\\interview-exam\\03-crawler-mitadmissions\\csv\\drissionpage_blogs.csv"
+}
