@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Your Resume — Finish step</title>
+<meta name="description" content="Final step of the resume upload flow: drag a file into the drop area or click it to choose one.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#file-input">Skip to the upload field</a>
+
+  <div class="page">
+    <div class="shell">
+
+      <!-- ================= 左栏：标题 + 插画 ================= -->
+      <header class="intro">
+        <p class="intro__kicker">Finish!</p>
+        <h1 class="intro__title">Upload Your Resume</h1>
+        <p class="intro__sub">
+          Upload your resume, the platform will help you parse and optimize, you
+          can upload your resume in this step
+        </p>
+
+        <aside class="art" aria-hidden="true">
+          <svg class="art__svg" viewBox="0 0 440 340" role="presentation" focusable="false">
+
+            <!-- ---------- 羽毛笔 ---------- -->
+            <g>
+              <path d="M392 18c18 34 22 78 12 122-10 40-32 72-49 96-11-24-19-58-18-88 1-42 15-92 55-130z"
+                    fill="#EEF0F4" stroke="#2B3A4A" stroke-width="2.2" stroke-linejoin="round"/>
+              <path d="M392 18c-20 72-32 152-37 218" fill="none" stroke="#2B3A4A"
+                    stroke-width="2.2" stroke-linecap="round"/>
+              <g fill="none" stroke="#93A0AE" stroke-width="1.6" stroke-linecap="round">
+                <path d="M388 60 405 88M382 96 400 124M372 132 390 158M362 168 378 192M352 200 366 220"/>
+              </g>
+              <path d="M355 236c-3 10-4 18-4 26" fill="none" stroke="#2B3A4A" stroke-width="2"
+                    stroke-linecap="round"/>
+            </g>
+
+            <!-- ---------- 手机 ---------- -->
+            <g>
+              <rect x="245" y="60" width="94" height="262" rx="20" fill="#3B7CFF"/>
+              <rect x="253" y="68" width="78" height="246" rx="14" fill="#FFFFFF"/>
+              <rect x="258" y="76" width="68" height="230" rx="10" fill="#FFFFFF" stroke="#DCE4EE" stroke-width="1.6"/>
+              <rect x="266" y="90" width="52" height="22" rx="6" fill="#F4F8FF" stroke="#DCE4EE" stroke-width="1.4"/>
+              <g fill="#EFF3F9">
+                <rect x="266" y="122" width="52" height="10" rx="5"/>
+                <rect x="266" y="140" width="52" height="10" rx="5"/>
+                <rect x="266" y="158" width="34" height="8" rx="4"/>
+                <rect x="266" y="180" width="52" height="10" rx="5"/>
+                <rect x="266" y="198" width="52" height="10" rx="5"/>
+                <rect x="266" y="216" width="40" height="8" rx="4"/>
+              </g>
+              <rect x="274" y="288" width="32" height="5" rx="2.5" fill="#DCE4EE"/>
+            </g>
+
+            <!-- ---------- 猫 ---------- -->
+            <g>
+              <!-- 尾巴 -->
+              <path d="M50 306c-32-10-48-46-36-76 9-24 34-36 50-24 12 9 10 25-2 30"
+                    fill="none" stroke="#123FA8" stroke-width="21" stroke-linecap="round"/>
+              <path d="M50 306c-32-10-48-46-36-76 9-24 34-36 50-24 12 9 10 25-2 30"
+                    fill="none" stroke="#3B7CFF" stroke-width="16" stroke-linecap="round"/>
+
+              <!-- 身体 -->
+              <path d="M18 340c-3-36 14-64 50-74 38-11 84-2 108 26 12 15 17 32 16 48z"
+                    fill="#3B7CFF" stroke="#123FA8" stroke-width="2.4" stroke-linejoin="round"/>
+              <path d="M56 328c-2-20 6-36 22-44" fill="none" stroke="#7FA6FF" stroke-width="4" stroke-linecap="round"/>
+              <ellipse cx="84" cy="304" rx="15" ry="9" fill="#FFFFFF" opacity=".9"/>
+              <ellipse cx="140" cy="296" rx="9" ry="6" fill="#FFFFFF" opacity=".75"/>
+              <path d="M136 340c0-13 6-21 16-21s16 8 16 21z" fill="#FFFFFF" stroke="#123FA8" stroke-width="2"/>
+              <path d="M146 326v9M157 326v9" stroke="#123FA8" stroke-width="1.6" stroke-linecap="round"/>
+
+              <!-- 头 -->
+              <path d="M178 226l-4-34 33 17z" fill="#3B7CFF" stroke="#123FA8" stroke-width="2.2" stroke-linejoin="round"/>
+              <path d="M236 210l31-18 4 34z" fill="#3B7CFF" stroke="#123FA8" stroke-width="2.2" stroke-linejoin="round"/>
+              <circle cx="206" cy="248" r="41" fill="#3B7CFF" stroke="#123FA8" stroke-width="2.4"/>
+              <ellipse cx="190" cy="240" rx="10" ry="11.5" fill="#FFFFFF" stroke="#123FA8" stroke-width="1.5"/>
+              <ellipse cx="190" cy="241" rx="4.6" ry="5.8" fill="#111827"/>
+              <circle cx="188.5" cy="238.4" r="1.5" fill="#FFFFFF"/>
+              <ellipse cx="222" cy="240" rx="10" ry="11.5" fill="#FFFFFF" stroke="#123FA8" stroke-width="1.5"/>
+              <ellipse cx="222" cy="241" rx="4.6" ry="5.8" fill="#111827"/>
+              <circle cx="220.5" cy="238.4" r="1.5" fill="#FFFFFF"/>
+              <path d="M201 258h10l-5 5z" fill="#0E3596"/>
+              <path d="M206 263v3M206 266c-1.5 4-5.4 5.4-9.2 4.4M206 266c1.5 4 5.4 5.4 9.2 4.4"
+                    fill="none" stroke="#123FA8" stroke-width="1.7" stroke-linecap="round"/>
+              <g stroke="#0E3596" stroke-width="1.5" stroke-linecap="round" fill="none">
+                <path d="M176 252l-19-5M176 259l-18 5M236 252l19-5M236 259l18 5"/>
+              </g>
+            </g>
+
+            <!-- ---------- 白色对话气泡（4 点） ---------- -->
+            <g>
+              <path d="M70 50h170c6 0 10 4 10 10v50c0 6-4 10-10 10h-58l-12 26-1-26H70c-6 0-10-4-10-10V60c0-6 4-10 10-10z"
+                    fill="#FFFFFF" stroke="#2B3A4A" stroke-width="2.2" stroke-linejoin="round"/>
+              <g fill="#FFFFFF" stroke="#2B3A4A" stroke-width="2">
+                <circle cx="98" cy="86" r="6.5"/>
+                <circle cx="130" cy="86" r="6.5"/>
+                <circle cx="162" cy="86" r="6.5"/>
+                <circle cx="194" cy="86" r="6.5"/>
+              </g>
+            </g>
+
+            <!-- ---------- 深色对话气泡（4 个白点） ---------- -->
+            <g>
+              <path d="M264 160h132c6 0 10 4 10 10v42c0 6-4 10-10 10h-54l-14 22 2-22h-66c-6 0-10-4-10-10v-42c0-6 4-10 10-10z"
+                    fill="#3A3A42" stroke="#25252C" stroke-width="1.6" stroke-linejoin="round"/>
+              <g fill="#FFFFFF">
+                <circle cx="286" cy="191" r="6"/>
+                <circle cx="318" cy="191" r="6"/>
+                <circle cx="350" cy="191" r="6"/>
+                <circle cx="382" cy="191" r="6"/>
+              </g>
+            </g>
+          </svg>
+        </aside>
+      </header>
+
+      <!-- ================= 右栏：上传卡片 ================= -->
+      <main class="card" id="upload-card">
+        <h2 class="card__title">Upload file</h2>
+
+        <section class="card__body">
+          <label class="dropzone" id="dropzone" for="file-input" tabindex="0" role="button"
+                 aria-describedby="dz-hint dz-formats">
+            <span class="dropzone__inner">
+              <span class="dropzone__icon" aria-hidden="true">
+                <svg class="icon icon--cloud" viewBox="0 0 48 48" focusable="false">
+                  <path d="M13.5 34.5h-1.2A7.8 7.8 0 0 1 11 19.1a10.6 10.6 0 0 1 20.4-2.4 8.2 8.2 0 0 1 3.2 15.9l-.7.1"
+                        fill="#1B5AFF"/>
+                  <path d="M24 37V23.5" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+                  <path d="m17.6 29 6.4-6.4 6.4 6.4" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none"/>
+                </svg>
+                <svg class="icon icon--file" viewBox="0 0 48 48" focusable="false">
+                  <path d="M13 6h14l9 9v25a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"
+                        fill="#EAF2FF" stroke="#1B5AFF" stroke-width="2.4" stroke-linejoin="round"/>
+                  <path d="M27 6v9h9" fill="#D6E5FF" stroke="#1B5AFF" stroke-width="2.4" stroke-linejoin="round"/>
+                  <path d="M17 26h14M17 32h10" stroke="#1B5AFF" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+                <svg class="icon icon--check" viewBox="0 0 48 48" focusable="false">
+                  <circle cx="24" cy="24" r="18" fill="#1B5AFF"/>
+                  <path d="m16 24.5 5.5 5.5L32 19" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none"/>
+                </svg>
+              </span>
+
+              <span class="dropzone__hint" id="dz-hint">
+                Drag your resume file to this area, or click on the area to select
+                the appropriate file to upload
+              </span>
+              <span class="dropzone__meta" id="dz-meta" hidden></span>
+            </span>
+            <input type="file" id="file-input" name="resume" class="visually-hidden"
+                   accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+          </label>
+
+          <p class="formats" id="dz-formats">PDF, DOC, DOCX, PNG, JPG, JPEG · max 10 MB</p>
+
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+
+          <div class="actions">
+            <button type="button" class="btn btn--secondary" id="btn-last">Last step</button>
+            <button type="button" class="btn btn--primary" id="btn-finish">Finish</button>
+          </div>
+
+          <ol class="steps" id="steps" aria-label="Upload progress">
+            <li class="steps__item is-done"><span class="steps__dot"></span><span class="visually-hidden">Step 1 complete</span></li>
+            <li class="steps__item is-done"><span class="steps__dot"></span><span class="visually-hidden">Step 2 complete</span></li>
+            <li class="steps__item is-current" aria-current="step"><span class="steps__dot"></span><span class="visually-hidden">Step 3, current</span></li>
+          </ol>
+        </section>
+      </main>
+
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
