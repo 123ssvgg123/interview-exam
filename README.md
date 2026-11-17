@@ -70,12 +70,14 @@ interview-exam/
 - 所有结论都来自本机真实运行（含失败尝试），没有编造数字；截图与输出文件随仓库提交。
 - 第 5 题按题目要求只交 `answer.md`（也可导出 PDF），被审核的任务包原件一并放在 `task-package/` 便于对照。
 
-## 上传到 GitHub
+## 仓库地址
 
-仓库已经按题分好提交记录（`git log --oneline` 可看到每题一个 commit），推送即可：
+<https://github.com/123ssvgg123/interview-exam>
+
+提交记录按题拆分（`git log --oneline` 每题一个 commit）：
 
 ```bash
+git clone https://github.com/123ssvgg123/interview-exam.git
 cd interview-exam
-git remote add origin https://github.com/<你的用户名>/<仓库名>.git
-git push -u origin main
+git log --oneline
 ```
